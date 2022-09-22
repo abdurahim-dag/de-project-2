@@ -45,7 +45,7 @@ from description_array;
 
 -- Заполнение таблицы с уникальными доставками
 
-with shipping_array as (
+with sa as (
     select distinct
         shippingid,
         vendorid,
@@ -65,7 +65,7 @@ select
     st.shipping_transfer_id,
     sc.shipping_country_id,
     agreement_description_arr[1]::bigint
-from shipping_array sa
+from sa
 join shipping_transfer st ON
     st.shipping_transfer_type  = sa.transfer_description_arr[1] and
     st.shipping_transfer_model = sa.transfer_description_arr[2]
