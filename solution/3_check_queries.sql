@@ -1,7 +1,7 @@
 -- Проверим справочник стоимости доставки в страны
 select * from shipping_country_rates limit 10;
 
--- Провека общего количесства
+-- Проверка общего количества
 select count(distinct shippingid)
 from shipping
 union all

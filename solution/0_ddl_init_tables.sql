@@ -1,5 +1,5 @@
--- Предварительно удаляем таблицы в правильном поядке, если ест
--- Так как вьюшка зависимая от таблиц, здесь же такж ее удаляем
+-- Предварительно удаляем таблицы в правильном порядке, если есть
+-- Так как вьюшка зависимая от таблиц, здесь же также ее удаляем
 drop view  if exists shipping_datamart;
 drop TABLE if exists shipping_info;
 drop TABLE if exists shipping_status;
@@ -39,7 +39,7 @@ CREATE TABLE shipping_transfer(
 );
 COMMENT ON COLUMN shipping_transfer.shipping_transfer_id is 'Уникальный справочник типа доставки';
 COMMENT ON COLUMN shipping_transfer.shipping_transfer_type is 'Тип доставки';
-COMMENT ON COLUMN shipping_transfer.shipping_transfer_model is 'Модель доставким - способ, которым заказ доставляется до точки';
+COMMENT ON COLUMN shipping_transfer.shipping_transfer_model is 'Модель доставки - способ, которым заказ доставляется до точки';
 COMMENT ON COLUMN shipping_transfer.shipping_transfer_rate is 'Процент стоимости доставки для вендора';
 
 -- Создание таблицы с уникальными доставками
@@ -63,7 +63,7 @@ COMMENT ON COLUMN shipping_info.transfer_id is 'ID типа доставки';
 COMMENT ON COLUMN shipping_info.shipping_country_id is 'ID страны доставки';
 COMMENT ON COLUMN shipping_info.agreement_id is 'ID тарифа';
 
--- Создние таблицы статусов о доставке
+-- Создание таблицы статусов о доставке
 CREATE TABLE shipping_status(
     shipping_id bigint PRIMARY KEY,
     shipping_start_fact_datetime timestamp,

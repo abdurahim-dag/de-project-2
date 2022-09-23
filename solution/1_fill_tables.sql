@@ -97,7 +97,7 @@ alter table shipping_info add constraint shipping_info_transfer_id_fkey foreign 
     references shipping_transfer(shipping_transfer_id) on update cascade;
 
 
--- Создние таблицы статусов о доставке
+-- Заполнение таблицы статусов о доставке
 insert into shipping_status
     select distinct
 	    shippingid,
