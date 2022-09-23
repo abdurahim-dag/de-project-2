@@ -7,7 +7,7 @@ select
     si.shipping_id,
     si.vendor_id,
     st.shipping_transfer_type,
-    date_part('day', age(ss.shipping_end_fact_datetime, ss.shipping_start_fact_datetime))  full_day_at_shipping,
+    EXTRACT(DAY FROM (shipping_end_fact_datetime - shipping_start_fact_datetime)) AS full_day_at_shipping
     ss.shipping_end_fact_datetime > si.shipping_plan_datetime is_delay,
     ss.status = 'finished' is_shipping_finish,
     case when ss.shipping_end_fact_datetime > si.shipping_plan_datetime
