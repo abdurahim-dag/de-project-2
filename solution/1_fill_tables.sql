@@ -1,16 +1,22 @@
--- Заполнение справочника стоимости доставки в страны
+-- Очистим таблички, для всяких случаев.
+truncate shipping_info;
+truncate shipping_status;
+truncate shipping_country_rates cascade;
+truncate shipping_agreement cascade;
+truncate shipping_transfer cascade;
 
+
+-- Заполнение справочника стоимости доставки в страны
 insert into shipping_country_rates(
     shipping_country,
     shipping_country_base_rate
 )
 select distinct
     s.shipping_country, s.shipping_country_base_rate
-from shipping s
-group by s.shipping_country, s.shipping_country_base_rate;
+from shipping s;
+
 
 -- Заполнение справочника тарифов доставки вендора по договору
-
 with description_array as (
     select distinct
         regexp_split_to_array(vendor_agreement_description, ':') as desc_arr
@@ -24,8 +30,8 @@ select
     desc_arr[4]::numeric
 from description_array;
 
--- Заполнение справочника о типах доставки
 
+-- Заполнение справочника о типах доставки
 with description_array as (
     select distinct
         regexp_split_to_array(shipping_transfer_description, ':') as desc_array,
@@ -43,8 +49,16 @@ select
     shipping_transfer_rate
 from description_array;
 
+
 -- Заполнение таблицы с уникальными доставками
 
+-- 1. На время импорта данных удалим индексы.
+alter table shipping_info drop constraint if exists shipping_info_pkey;
+alter table shipping_info drop constraint if exists shipping_info_agreement_id_fkey;
+alter table shipping_info drop constraint if exists shipping_info_shipping_country_id_fkey;
+alter table shipping_info drop constraint if exists shipping_info_transfer_id_fkey;
+
+-- 2. Импорт данных
 with sa as (
     select distinct
         shippingid,
@@ -72,8 +86,18 @@ join shipping_transfer st ON
 join shipping_country_rates sc ON
     sc.shipping_country = sa.shipping_country;
 
--- Создние таблицы статусов о доставке
+-- 3. Восстановим индексы.
+alter table shipping_info add constraint shipping_info_pkey
+    PRIMARY KEY (shipping_id);
+alter table shipping_info add constraint shipping_info_agreement_id_fkey foreign key (agreement_id)
+    references shipping_agreement(agreement_id) on update cascade;
+alter table shipping_info add constraint shipping_info_shipping_country_id_fkey foreign key (shipping_country_id)
+    references shipping_country_rates(shipping_country_id) on update cascade;
+alter table shipping_info add constraint shipping_info_transfer_id_fkey foreign key (transfer_id)
+    references shipping_transfer(shipping_transfer_id) on update cascade;
 
+
+-- Создние таблицы статусов о доставке
 insert into shipping_status
     select distinct
 	    shippingid,
@@ -83,4 +107,4 @@ insert into shipping_status
 		first_value(state) over max_sort max_state
     from shipping
     window  max_sort as (partition by shippingid order by state_datetime desc),
-    idw as (partition by shippingid)
+    idw as (partition by shippingid);
